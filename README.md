@@ -17,4 +17,4 @@ Simply open `index.html` directly in any browser.
 
 ## Licence
 
-This project is licenced under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the [LICENCE](LICENCE) file for details.
+This project is licenced under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the [LICENCE](LICENCE.md) file for details.
