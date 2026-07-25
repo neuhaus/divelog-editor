@@ -64,7 +64,21 @@ header {
 .brand-title {
   display: flex;
   align-items: center;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
   gap: 6px;
+  text-decoration: none;
+  color: var(--text-color);
+  border-radius: 6px;
+  padding: 4px;
+  transition: color 0.15s ease;
+}
+
+.brand-link:hover h1 {
+  color: var(--primary-color);
 }
 
 .app-logo {
