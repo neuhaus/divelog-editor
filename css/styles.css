@@ -395,3 +395,16 @@ pre:focus-visible {
   margin-left: 10px;
   display: none;
 }
+
+/* Graceful Notice for Non-JavaScript Browsers */
+.noscript-warning {
+  background-color: #fff3cd;
+  color: #725100;
+  border: 2px solid #ffeeba;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
