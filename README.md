@@ -5,7 +5,7 @@ A lightweight, accessible, single-page web application to read, view, edit, and 
 ## Features
 
 - Compatible with [Shearwater Cloud](https://shearwater.com/pages/shearwater-cloud). Tested with macOS client 2.12.10.
-  - Known issue: Shearwater cloud does not recognise the <suittype> element.
+  - Known issue: Shearwater cloud does not recognise the `<suittype>` element.
 - **Read & Edit Existing UDDF 3.2.1 Files**: Easily import and parse existing `.uddf` or `.xml` dive log files into the form to review, modify, or re-export them.
 - **Simple Form Entry**: Quick upfront entry for essential dive log details (Dive Number, Date & Time, Site Name, Max Depth, Duration, Gas Mix, Start/End Pressures).
 - **Progressive Disclosure**: Expandable sections for additional details (Diver & Buddy info, GPS coordinates, apparatus, water/air temperature, visibility, and dive notes).
