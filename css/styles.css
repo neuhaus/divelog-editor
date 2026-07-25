@@ -285,6 +285,7 @@ summary:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0; /* Prevents grid child overflow on iOS Safari */
 }
 
 label {
@@ -306,8 +307,22 @@ textarea {
   border-radius: 6px;
   font-family: inherit;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   color: var(--text-color);
   background-color: #ffffff;
+}
+
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Fix iOS Safari datetime-local intrinsic sizing & alignment */
+input[type="datetime-local"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.5em;
+  margin: 0;
 }
 
 textarea {
