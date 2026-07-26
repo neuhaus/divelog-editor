@@ -62,6 +62,9 @@
       }
     }
     initialiseDateTime();
+    let activeWaypoints = null;
+    let activeGasNotes = '';
+    let activeGasDefinitions = null;
 
     function getFormData() {
       const selectedPreset = $val('gasPreset');
@@ -81,6 +84,7 @@
       }
 
       return {
+        unit: currentUnit,
         diveNumber: $val('diveNumber'),
         dateTime: $val('dateTime'),
         siteName: $val('siteName'),
@@ -101,13 +105,21 @@
         longitude: $val('longitude'),
         tankVolume: $val('tankVolume'),
         apparatus: $val('apparatus'),
+        platform: $val('platform'),
         suitType: $val('suitType'),
         leadQuantity: $val('leadQuantity'),
         purpose: $val('purpose'),
+        current: $val('current'),
         airTemp: $val('airTemp'),
         waterTemp: $val('waterTemp'),
         visibility: $val('visibility'),
         notes: $val('notes'),
+        envNotes: $val('envNotes'),
+        gasNotes: activeGasNotes,
+        rawGasDefinitionsXml: activeGasDefinitions ? activeGasDefinitions.rawGasDefinitionsXml : null,
+        allMixes: activeGasDefinitions ? activeGasDefinitions.allMixes : null,
+        gearNotes: $val('gearNotes'),
+        issuesNotes: $val('issuesNotes'),
         customWaypoints: activeWaypoints
       };
     }
@@ -263,15 +275,23 @@
       $val('buddyLastName', '');
 
       $val('tankVolume', '');
-      $val('apparatus', '');
+      $val('apparatus', 'open-scuba');
+      $val('platform', '');
       $val('suitType', '');
       $val('leadQuantity', '');
-      $val('purpose', '');
+      $val('purpose', 'sightseeing');
+      $val('current', '');
 
       $val('airTemp', '');
       $val('waterTemp', '');
       $val('visibility', '');
       $val('notes', '');
+      $val('envNotes', '');
+      $val('gearNotes', '');
+      $val('issuesNotes', '');
+
+      activeGasNotes = '';
+      activeGasDefinitions = null;
 
       updateXmlPreview();
     }
@@ -279,6 +299,8 @@
     function loadSampleDive() {
       const isImp = currentUnit === UNITS.IMPERIAL;
       activeWaypoints = null;
+      activeGasNotes = '';
+      activeGasDefinitions = null;
 
       $val('diveNumber', '104');
       $val('siteName', 'Shark & Yolanda Reef');
@@ -304,15 +326,20 @@
 
       $val('tankVolume', isImp ? '80' : '12');
       $val('apparatus', 'open-scuba');
+      $val('platform', 'charter-boat');
       $val('suitType', 'wetsuit_5mm');
       $val('leadQuantity', isImp ? '13.2' : '6.0');
       $val('purpose', 'sightseeing');
+      $val('current', 'mild-current');
 
       $val('airTemp', isImp ? '86' : '30');
       $val('waterTemp', isImp ? '77' : '25');
       $val('visibility', isImp ? '98.0' : '30.0');
 
       $val('notes', 'Spectacular drift dive along Yolanda Reef wall. Observed grey reef sharks, giant morays, and anemone fish.');
+      $val('envNotes', 'Clear sunny skies, slight surface swell, thermocline at 18m.');
+      $val('gearNotes', '5mm wetsuit and 6kg weight belt.');
+      $val('issuesNotes', 'None.');
 
       updateXmlPreview();
     }
@@ -352,6 +379,11 @@
     function processImportedContent(xmlText) {
       const parsedData = parseUddfXml(xmlText, currentUnit);
       activeWaypoints = parsedData.customWaypoints && parsedData.customWaypoints.length > 0 ? parsedData.customWaypoints : null;
+      activeGasNotes = parsedData.gasNotes || '';
+      activeGasDefinitions = {
+        rawGasDefinitionsXml: parsedData.rawGasDefinitionsXml || null,
+        allMixes: parsedData.allMixes || null
+      };
 
       $val('diveNumber', parsedData.diveNumber || '1');
       $val('dateTime', parsedData.dateTime || new Date().toISOString().substring(0, 16));
@@ -372,15 +404,20 @@
       $val('endPressure', parsedData.endPressure || '');
 
       $val('tankVolume', parsedData.tankVolume || '');
-      $val('apparatus', parsedData.apparatus || '');
+      $val('apparatus', parsedData.apparatus || 'open-scuba');
+      $val('platform', parsedData.platform || '');
       $val('suitType', parsedData.suitType || '');
       $val('leadQuantity', parsedData.leadQuantity || '');
-      $val('purpose', parsedData.purpose || '');
+      $val('purpose', parsedData.purpose || 'sightseeing');
+      $val('current', parsedData.current || '');
 
       $val('airTemp', parsedData.airTemp || '');
       $val('waterTemp', parsedData.waterTemp || '');
       $val('visibility', parsedData.visibility || '');
       $val('notes', parsedData.notes || '');
+      $val('envNotes', parsedData.envNotes || '');
+      $val('gearNotes', parsedData.gearNotes || '');
+      $val('issuesNotes', parsedData.issuesNotes || '');
 
       if (parsedData.gasO2 === null || parsedData.gasO2 === undefined) {
         $val('gasPreset', '');

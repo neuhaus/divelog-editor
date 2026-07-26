@@ -171,7 +171,19 @@
     }
 
     // 4. Gas Definitions (Omitted if gas mixture is unspecified/unknown)
-    if (hasGasDefinitions) {
+    if (diveLogData.allMixes && diveLogData.allMixes.length > 0) {
+      xml += `  <gasdefinitions>\n`;
+      diveLogData.allMixes.forEach(mix => {
+        const mixId = mix.id || `gas_${mix.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+        xml += `    <mix id="${escapeXml(mixId)}">\n`;
+        xml += `      <name>${escapeXml(mix.name)}</name>\n`;
+        xml += `      <o2>${parseFloat(mix.o2).toFixed(4)}</o2>\n`;
+        xml += `      <n2>${parseFloat(mix.n2).toFixed(4)}</n2>\n`;
+        xml += `      <he>${parseFloat(mix.he).toFixed(4)}</he>\n`;
+        xml += `    </mix>\n`;
+      });
+      xml += `  </gasdefinitions>\n`;
+    } else if (hasGasDefinitions) {
       xml += `  <gasdefinitions>\n`;
       xml += `    <mix id="${gasId}">\n`;
       xml += `      <name>${escapeXml(diveLogData.gasName)}</name>\n`;
@@ -204,6 +216,9 @@
     }
     if (diveLogData.apparatus) {
       xml += `          <apparatus>${escapeXml(diveLogData.apparatus)}</apparatus>\n`;
+    }
+    if (diveLogData.platform) {
+      xml += `          <platform>${escapeXml(diveLogData.platform)}</platform>\n`;
     }
     if (diveLogData.purpose) {
       xml += `          <purpose>${escapeXml(diveLogData.purpose)}</purpose>\n`;
@@ -266,9 +281,32 @@
     if (visibilitySI !== null) {
       xml += `          <visibility>${visibilitySI.toFixed(2)}</visibility>\n`;
     }
-    if (diveLogData.notes && diveLogData.notes.trim()) {
+    if (diveLogData.current) {
+      xml += `          <current>${escapeXml(diveLogData.current)}</current>\n`;
+    }
+    const hasSummary = Boolean(diveLogData.notes && diveLogData.notes.trim());
+    const hasEnv = Boolean(diveLogData.envNotes && diveLogData.envNotes.trim());
+    const hasGas = Boolean(diveLogData.gasNotes && diveLogData.gasNotes.trim());
+    const hasGear = Boolean(diveLogData.gearNotes && diveLogData.gearNotes.trim());
+    const hasIssues = Boolean(diveLogData.issuesNotes && diveLogData.issuesNotes.trim());
+
+    if (hasSummary || hasEnv || hasGas || hasGear || hasIssues) {
       xml += `          <notes>\n`;
-      xml += `            <para>${escapeXml(diveLogData.notes.trim())}</para>\n`;
+      if (hasSummary) {
+        xml += `            <para>Summary:\n${escapeXml(diveLogData.notes.trim())}</para>\n`;
+      }
+      if (hasEnv) {
+        xml += `            <para>Environment:\n${escapeXml(diveLogData.envNotes.trim())}</para>\n`;
+      }
+      if (hasGas) {
+        xml += `            <para>Gas:\n${escapeXml(diveLogData.gasNotes.trim())}</para>\n`;
+      }
+      if (hasGear) {
+        xml += `            <para>Gear:\n${escapeXml(diveLogData.gearNotes.trim())}</para>\n`;
+      }
+      if (hasIssues) {
+        xml += `            <para>Issues:\n${escapeXml(diveLogData.issuesNotes.trim())}</para>\n`;
+      }
       xml += `          </notes>\n`;
     }
     if (durationSec > 0) {

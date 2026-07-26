@@ -59,10 +59,22 @@
     const gasO2 = Math.round(o2Fraction * 100);
     const gasHe = Math.round(heFraction * 100);
 
+    const gasDefinitionsEl = xmlDoc.querySelector('gasdefinitions');
+    const rawGasDefinitionsXml = gasDefinitionsEl ? gasDefinitionsEl.outerHTML : null;
+    const allMixes = Array.from(xmlDoc.querySelectorAll('gasdefinitions mix')).map(mix => {
+      const name = getText('name', mix) || 'Mix';
+      const o2 = getFloat('o2', mix) ?? 0.21;
+      const he = getFloat('he', mix) ?? 0.0;
+      const n2 = getFloat('n2', mix) ?? (1.0 - o2 - he);
+      const id = mix.getAttribute('id') || `gas_${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+      return { id, name, o2, he, n2 };
+    });
+
     // Info before dive
     const diveNumber = getText('informationbeforedive > divenumber');
     const dateTime = getText('informationbeforedive > datetime');
     const apparatus = getText('informationbeforedive > apparatus') || 'open-scuba';
+    const platform = getText('informationbeforedive > platform');
     const purpose = getText('informationbeforedive > purpose') || 'sightseeing';
 
     const airTempK = getFloat('informationbeforedive > airtemperature');
@@ -98,7 +110,35 @@
         : visibilityM.toFixed(1);
     }
 
-    const notes = getText('informationafterdive notes > para') || getText('informationafterdive > notes');
+    const current = getText('informationafterdive > current');
+    const notesParas = Array.from(xmlDoc.querySelectorAll('informationafterdive notes > para')).map(p => p.textContent.trim());
+    let notes = '';
+    let envNotes = '';
+    let gasNotes = '';
+    let gearNotes = '';
+    let issuesNotes = '';
+
+    notesParas.forEach(p => {
+      if (/^Summary:\s*/i.test(p)) {
+        notes = p.replace(/^Summary:\s*/i, '');
+      } else if (/^Environment(al)?:\s*/i.test(p)) {
+        envNotes = p.replace(/^Environment(al)?:\s*/i, '');
+      } else if (/^Gas:\s*/i.test(p)) {
+        gasNotes = p.replace(/^Gas:\s*/i, '');
+      } else if (/^Gear:\s*/i.test(p)) {
+        gearNotes = p.replace(/^Gear:\s*/i, '');
+      } else if (/^Issues:\s*/i.test(p)) {
+        issuesNotes = p.replace(/^Issues:\s*/i, '');
+      } else if (!notes) {
+        notes = p;
+      } else {
+        notes += '\n' + p;
+      }
+    });
+
+    if (!notes && !envNotes && !gasNotes && !gearNotes && !issuesNotes) {
+      notes = getText('informationafterdive > notes');
+    }
 
     // Tank Data
     const tankVolVal = getFloat('tankdata > tankvolume');
@@ -182,7 +222,9 @@
       gasO2,
       gasHe,
       apparatus,
+      platform,
       purpose,
+      current,
       suitType,
       leadQuantity,
       maxDepth,
@@ -194,6 +236,12 @@
       waterTemp,
       visibility,
       notes,
+      envNotes,
+      gasNotes,
+      gearNotes,
+      issuesNotes,
+      rawGasDefinitionsXml,
+      allMixes,
       customWaypoints
     };
   }

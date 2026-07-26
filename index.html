@@ -173,6 +173,26 @@
             <summary>Add Equipment & Environmental Conditions</summary>
             <div class="details-content form-grid">
               <div class="form-group">
+                <label for="waterTemp">Water Temperature <span class="unit-tag unit-temp"
+                    aria-hidden="true">(°C)</span></label>
+                <input type="number" id="waterTemp" step="0.5" placeholder="e.g. 24">
+              </div>
+              <div class="form-group">
+                <label for="visibility">Visibility <span class="unit-tag unit-depth"
+                    aria-hidden="true">(m)</span></label>
+                <input type="number" id="visibility" step="0.5" placeholder="e.g. 20">
+              </div>
+              <div class="form-group">
+                <label for="airTemp">Air Temperature <span class="unit-tag unit-temp"
+                    aria-hidden="true">(°C)</span></label>
+                <input type="number" id="airTemp" step="0.5" placeholder="e.g. 28">
+              </div>
+              <div class="form-group">
+                <label for="leadQuantity">Ballast Weight <span class="unit-tag unit-weight"
+                    aria-hidden="true">(kg)</span></label>
+                <input type="number" id="leadQuantity" step="0.5" min="0" placeholder="e.g. 6.0">
+              </div>
+              <div class="form-group">
                 <label for="tankVolume">Tank Volume <span class="unit-tag unit-volume"
                     aria-hidden="true">(L)</span></label>
                 <input type="number" id="tankVolume" step="0.1" placeholder="e.g. 12">
@@ -180,10 +200,25 @@
               <div class="form-group">
                 <label for="apparatus">Apparatus</label>
                 <select id="apparatus" aria-label="Select diving apparatus type">
-                  <option value="" selected>Unspecified / Unknown</option>
-                  <option value="open-scuba">Open Circuit Scuba</option>
+                  <option value="open-scuba" selected>Open Circuit Scuba</option>
+                  <option value="">Unspecified / Unknown</option>
                   <option value="rebreather">Rebreather (CCR/SCR)</option>
                   <option value="surface-supplied">Surface Supplied</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="platform">Platform / Entry</label>
+                <select id="platform" aria-label="Select diving platform or entry type">
+                  <option value="" selected>Unspecified / Unknown</option>
+                  <option value="beach-shore">Shore / Beach</option>
+                  <option value="pier">Pier / Jetty</option>
+                  <option value="small-boat">Small Boat / Zodiac</option>
+                  <option value="charter-boat">Charter Boat</option>
+                  <option value="live-aboard">Liveaboard</option>
+                  <option value="barge">Barge</option>
+                  <option value="landside">Landside</option>
+                  <option value="hyperbaric-facility">Hyperbaric Facility</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
               <div class="form-group">
@@ -199,15 +234,10 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="leadQuantity">Ballast Weight <span class="unit-tag unit-weight"
-                    aria-hidden="true">(kg)</span></label>
-                <input type="number" id="leadQuantity" step="0.5" min="0" placeholder="e.g. 6.0">
-              </div>
-              <div class="form-group">
                 <label for="purpose">Purpose</label>
                 <select id="purpose" aria-label="Select dive purpose">
-                  <option value="" selected>Unspecified / Unknown</option>
-                  <option value="sightseeing">Sightseeing / Recreational</option>
+                  <option value="sightseeing" selected>Sightseeing / Recreational</option>
+                  <option value="">Unspecified / Unknown</option>
                   <option value="learning">Student / Learning</option>
                   <option value="teaching">Instruction / Teaching</option>
                   <option value="photography-videography">Photography / Video</option>
@@ -216,27 +246,40 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="airTemp">Air Temperature <span class="unit-tag unit-temp"
-                    aria-hidden="true">(°C)</span></label>
-                <input type="number" id="airTemp" step="0.5" placeholder="e.g. 28">
-              </div>
-              <div class="form-group">
-                <label for="waterTemp">Water Temperature <span class="unit-tag unit-temp"
-                    aria-hidden="true">(°C)</span></label>
-                <input type="number" id="waterTemp" step="0.5" placeholder="e.g. 24">
-              </div>
-              <div class="form-group">
-                <label for="visibility">Visibility <span class="unit-tag unit-depth"
-                    aria-hidden="true">(m)</span></label>
-                <input type="number" id="visibility" step="0.5" placeholder="e.g. 20">
+                <label for="current">Water Current</label>
+                <select id="current" aria-label="Select water current strength">
+                  <option value="" selected>Unspecified / Unknown</option>
+                  <option value="no-current">No Current</option>
+                  <option value="very-mild-current">Very Mild Current</option>
+                  <option value="mild-current">Mild Current</option>
+                  <option value="moderate-current">Moderate Current</option>
+                  <option value="hard-current">Strong / Hard Current</option>
+                  <option value="very-hard-current">Very Strong Current</option>
+                </select>
               </div>
               <div class="form-group form-grid-full">
-                <label for="notes">Dive Notes</label>
-                <textarea id="notes" rows="3"
-                  placeholder="Enter log notes, marine life spotted, equipment notes..."></textarea>
+                <label for="envNotes">Environment Notes</label>
+                <textarea id="envNotes" rows="2"
+                  placeholder="e.g. Sunny, mild surge, thermocline at 12m..."></textarea>
+              </div>
+              <div class="form-group form-grid-full">
+                <label for="gearNotes">Gear Notes</label>
+                <textarea id="gearNotes" rows="2"
+                  placeholder="e.g. New wetsuit 5mm, perfect buoyancy with 6kg..."></textarea>
+              </div>
+              <div class="form-group form-grid-full">
+                <label for="issuesNotes">Issues Notes</label>
+                <textarea id="issuesNotes" rows="2"
+                  placeholder="e.g. Mask fogged slightly in first 5 min..."></textarea>
               </div>
             </div>
           </details>
+
+          <div class="form-group form-grid-full" style="margin-top: 1rem;">
+            <label for="notes">Summary / General Notes</label>
+            <textarea id="notes" rows="3"
+              placeholder="Enter summary notes, marine life spotted, main highlights..."></textarea>
+          </div>
         </form>
       </section>
 
