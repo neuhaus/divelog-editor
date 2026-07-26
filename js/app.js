@@ -253,8 +253,8 @@
       customGasContainer.style.display = 'none';
       validateGasMix();
 
-      $val('startPressure', '');
-      $val('endPressure', '');
+      $val('startPressure', currentUnit === UNITS.IMPERIAL ? '3000' : '200');
+      $val('endPressure', currentUnit === UNITS.IMPERIAL ? '720' : '50');
 
       $val('diverFirstName', '');
       $val('diverLastName', '');
