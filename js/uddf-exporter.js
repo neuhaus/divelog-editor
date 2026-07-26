@@ -309,9 +309,8 @@
       }
       xml += `          </notes>\n`;
     }
-    if (durationSec > 0) {
-      xml += `          <diveduration>${Math.round(durationSec)}</diveduration>\n`;
-    }
+    const validDurationSec = durationSec > 0 ? Math.round(durationSec) : 0;
+    xml += `          <diveduration>${validDurationSec}</diveduration>\n`;
     const hasLeadKg = leadKg !== null && !isNaN(leadKg) && leadKg > 0;
     if (hasSuitEquipment || hasLeadKg) {
       xml += `          <equipmentused>\n`;
