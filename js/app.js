@@ -65,9 +65,9 @@
 
     function getFormData() {
       const selectedPreset = $val('gasPreset');
-      let gasName = 'Air';
-      let gasO2 = 21;
-      let gasHe = 0;
+      let gasName = '';
+      let gasO2 = null;
+      let gasHe = null;
 
       if (selectedPreset === 'custom') {
         gasName = $val('gasName') || 'Custom';
@@ -222,6 +222,10 @@
           $val('gasName', preset.name);
           $val('gasO2', preset.o2 * 100);
           $val('gasHe', preset.he * 100);
+        } else if (e.target.value === '') {
+          $val('gasName', '');
+          $val('gasO2', '');
+          $val('gasHe', '');
         }
       }
       validateGasMix();
@@ -249,18 +253,18 @@
       customGasContainer.style.display = 'none';
       validateGasMix();
 
-      $val('startPressure', currentUnit === UNITS.IMPERIAL ? '3000' : '200');
-      $val('endPressure', currentUnit === UNITS.IMPERIAL ? '720' : '50');
+      $val('startPressure', '');
+      $val('endPressure', '');
 
       $val('diverFirstName', '');
       $val('diverLastName', '');
       $val('buddyName', '');
 
-      $val('tankVolume', currentUnit === UNITS.IMPERIAL ? '80' : '12');
-      $val('apparatus', 'open-scuba');
-      $val('suitType', 'wetsuit_5mm');
-      $val('leadQuantity', currentUnit === UNITS.IMPERIAL ? '13.2' : '6.0');
-      $val('purpose', 'sightseeing');
+      $val('tankVolume', '');
+      $val('apparatus', '');
+      $val('suitType', '');
+      $val('leadQuantity', '');
+      $val('purpose', '');
 
       $val('airTemp', '');
       $val('waterTemp', '');
@@ -360,21 +364,24 @@
 
       $val('maxDepth', parsedData.maxDepth || '0');
       $val('duration', parsedData.duration || '45');
-      $val('startPressure', parsedData.startPressure || '200');
-      $val('endPressure', parsedData.endPressure || '50');
+      $val('startPressure', parsedData.startPressure || '');
+      $val('endPressure', parsedData.endPressure || '');
 
-      $val('tankVolume', parsedData.tankVolume || '12');
-      $val('apparatus', parsedData.apparatus || 'open-scuba');
-      $val('suitType', parsedData.suitType || 'wetsuit_5mm');
-      $val('leadQuantity', parsedData.leadQuantity || '6.0');
-      $val('purpose', parsedData.purpose || 'sightseeing');
+      $val('tankVolume', parsedData.tankVolume || '');
+      $val('apparatus', parsedData.apparatus || '');
+      $val('suitType', parsedData.suitType || '');
+      $val('leadQuantity', parsedData.leadQuantity || '');
+      $val('purpose', parsedData.purpose || '');
 
       $val('airTemp', parsedData.airTemp || '');
       $val('waterTemp', parsedData.waterTemp || '');
       $val('visibility', parsedData.visibility || '');
       $val('notes', parsedData.notes || '');
 
-      if (parsedData.gasO2 === 21 && parsedData.gasHe === 0) {
+      if (parsedData.gasO2 === null || parsedData.gasO2 === undefined) {
+        $val('gasPreset', '');
+        customGasContainer.style.display = 'none';
+      } else if (parsedData.gasO2 === 21 && parsedData.gasHe === 0) {
         $val('gasPreset', 'air');
         customGasContainer.style.display = 'none';
       } else if (parsedData.gasO2 === 32 && parsedData.gasHe === 0) {

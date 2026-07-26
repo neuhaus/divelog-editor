@@ -49,40 +49,41 @@
       <!-- Left Column: Dive Log Form -->
       <section class="card" aria-labelledby="dive-details-heading">
         <h2 id="dive-details-heading" class="card-title">Dive Details</h2>
+        <p class="form-instructions"><span class="required-mark" aria-hidden="true">*</span> Mandatory field for valid UDDF entry</p>
 
         <form id="diveForm" aria-label="Dive log entry form">
           <!-- Primary Form Fields (Upfront) -->
           <div class="form-grid">
             <div class="form-group">
               <label for="diveNumber">Dive Number</label>
-              <input type="number" id="diveNumber" value="1" min="1" required aria-required="true">
+              <input type="number" id="diveNumber" value="1" min="1">
             </div>
 
             <div class="form-group">
-              <label for="dateTime">Date & Time</label>
+              <label for="dateTime">Date & Time <span class="required-mark" aria-hidden="true">*</span></label>
               <input type="datetime-local" id="dateTime" required aria-required="true">
             </div>
 
             <div class="form-group form-grid-full">
               <label for="siteName">Dive Site Name</label>
-              <input type="text" id="siteName" placeholder="e.g. Shark Reef, Dahab Blue Hole" required
-                aria-required="true">
+              <input type="text" id="siteName" placeholder="e.g. Shark Reef, Dahab Blue Hole">
             </div>
 
             <div class="form-group">
-              <label for="maxDepth">Max Depth <span class="unit-tag unit-depth" aria-hidden="true">(m)</span></label>
+              <label for="maxDepth">Max Depth <span class="unit-tag unit-depth" aria-hidden="true">(m)</span> <span class="required-mark" aria-hidden="true">*</span></label>
               <input type="number" id="maxDepth" step="0.1" value="18.0" min="0" required aria-required="true">
             </div>
 
             <div class="form-group">
-              <label for="duration">Duration (min)</label>
+              <label for="duration">Duration (min) <span class="required-mark" aria-hidden="true">*</span></label>
               <input type="number" id="duration" value="45" min="1" required aria-required="true">
             </div>
 
             <div class="form-group form-grid-full">
               <label for="gasPreset">Gas Mixture</label>
               <select id="gasPreset" aria-label="Select breathing gas mixture preset">
-                <option value="air">Air (21% O2)</option>
+                <option value="air" selected>Air (21% O2)</option>
+                <option value="">Unspecified / Unknown</option>
                 <option value="ean32">EAN32 (Nitrox 32%)</option>
                 <option value="ean36">EAN36 (Nitrox 36%)</option>
                 <option value="trimix2135">Trimix 21/35</option>
@@ -113,13 +114,13 @@
             <div class="form-group">
               <label for="startPressure">Start Pressure <span class="unit-tag unit-pressure"
                   aria-hidden="true">(bar)</span></label>
-              <input type="number" id="startPressure" value="200" min="0" required aria-required="true">
+              <input type="number" id="startPressure" placeholder="e.g. 200" min="0">
             </div>
 
             <div class="form-group">
               <label for="endPressure">End Pressure <span class="unit-tag unit-pressure"
                   aria-hidden="true">(bar)</span></label>
-              <input type="number" id="endPressure" value="50" min="0" required aria-required="true">
+              <input type="number" id="endPressure" placeholder="e.g. 50" min="0">
             </div>
           </div>
 
@@ -170,11 +171,12 @@
               <div class="form-group">
                 <label for="tankVolume">Tank Volume <span class="unit-tag unit-volume"
                     aria-hidden="true">(L)</span></label>
-                <input type="number" id="tankVolume" value="12" step="0.1">
+                <input type="number" id="tankVolume" step="0.1" placeholder="e.g. 12">
               </div>
               <div class="form-group">
                 <label for="apparatus">Apparatus</label>
                 <select id="apparatus" aria-label="Select diving apparatus type">
+                  <option value="" selected>Unspecified / Unknown</option>
                   <option value="open-scuba">Open Circuit Scuba</option>
                   <option value="rebreather">Rebreather (CCR/SCR)</option>
                   <option value="surface-supplied">Surface Supplied</option>
@@ -183,10 +185,11 @@
               <div class="form-group">
                 <label for="suitType">Suit / Exposure Protection</label>
                 <select id="suitType" aria-label="Select suit or exposure protection type">
+                  <option value="" selected>Unspecified / Unknown</option>
                   <option value="none">None / Swimsuit</option>
                   <option value="shorty">Shorty Wetsuit</option>
                   <option value="wetsuit_3mm">3mm Wetsuit</option>
-                  <option value="wetsuit_5mm" selected>5mm Wetsuit</option>
+                  <option value="wetsuit_5mm">5mm Wetsuit</option>
                   <option value="wetsuit_7mm">7mm Wetsuit / Semi-Dry</option>
                   <option value="drysuit">Drysuit</option>
                 </select>
@@ -194,11 +197,12 @@
               <div class="form-group">
                 <label for="leadQuantity">Ballast Weight <span class="unit-tag unit-weight"
                     aria-hidden="true">(kg)</span></label>
-                <input type="number" id="leadQuantity" value="6.0" step="0.5" min="0">
+                <input type="number" id="leadQuantity" step="0.5" min="0" placeholder="e.g. 6.0">
               </div>
               <div class="form-group">
                 <label for="purpose">Purpose</label>
                 <select id="purpose" aria-label="Select dive purpose">
+                  <option value="" selected>Unspecified / Unknown</option>
                   <option value="sightseeing">Sightseeing / Recreational</option>
                   <option value="learning">Student / Learning</option>
                   <option value="teaching">Instruction / Teaching</option>

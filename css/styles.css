@@ -310,6 +310,19 @@ label {
   color: var(--text-color);
 }
 
+.required-mark {
+  color: #dc2626;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.form-instructions {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
 input[type="text"],
 input[type="number"],
 input[type="datetime-local"],

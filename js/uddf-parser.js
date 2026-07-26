@@ -101,7 +101,7 @@
 
     // Tank Data
     const tankVolVal = getFloat('tankdata > tankvolume');
-    let tankVolume = isImperial ? '80' : '12';
+    let tankVolume = '';
     if (tankVolVal !== null && tankVolVal > 0) {
       if (tankVolVal < 1.0) {
         tankVolume = isImperial
@@ -129,9 +129,11 @@
     }
 
     // Equipment: Suit & Ballast Weight
+    const hasNoSuit = xmlDoc.querySelector('nosuit') !== null;
     const rawSuitType = getText('suittype') || getText('suit > suittype') || 'wetsuit_5mm';
     let suitType = 'wetsuit_5mm';
-    if (rawSuitType.includes('dry')) suitType = 'drysuit';
+    if (hasNoSuit) suitType = 'none';
+    else if (rawSuitType.includes('dry')) suitType = 'drysuit';
     else if (rawSuitType.includes('short')) suitType = 'shorty';
     else if (rawSuitType.includes('7') || rawSuitType.includes('semi')) suitType = 'wetsuit_7mm';
     else if (rawSuitType.includes('3')) suitType = 'wetsuit_3mm';

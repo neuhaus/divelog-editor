@@ -39,21 +39,24 @@
     const durationMin = parseFloat(diveLogData.duration || 0);
     const durationSec = durationMin * 60;
 
-    const startPressureSI = isImperial
-      ? CONVERSIONS.psiToPascal(parseFloat(diveLogData.startPressure || 0))
-      : CONVERSIONS.barToPascal(parseFloat(diveLogData.startPressure || 0));
+    const hasStartP = diveLogData.startPressure !== '' && diveLogData.startPressure !== undefined;
+    const startPressureSI = hasStartP
+      ? (isImperial ? CONVERSIONS.psiToPascal(parseFloat(diveLogData.startPressure)) : CONVERSIONS.barToPascal(parseFloat(diveLogData.startPressure)))
+      : null;
 
-    const endPressureSI = isImperial
-      ? CONVERSIONS.psiToPascal(parseFloat(diveLogData.endPressure || 0))
-      : CONVERSIONS.barToPascal(parseFloat(diveLogData.endPressure || 0));
+    const hasEndP = diveLogData.endPressure !== '' && diveLogData.endPressure !== undefined;
+    const endPressureSI = hasEndP
+      ? (isImperial ? CONVERSIONS.psiToPascal(parseFloat(diveLogData.endPressure)) : CONVERSIONS.barToPascal(parseFloat(diveLogData.endPressure)))
+      : null;
 
     const tankVolSI = isImperial
       ? CONVERSIONS.cuftToCubicMeters(parseFloat(diveLogData.tankVolume || 0))
       : CONVERSIONS.litresToCubicMeters(parseFloat(diveLogData.tankVolume || 0));
 
-    const leadKg = isImperial
-      ? CONVERSIONS.lbsToKg(parseFloat(diveLogData.leadQuantity || 0))
-      : parseFloat(diveLogData.leadQuantity || 0);
+    const hasLead = diveLogData.leadQuantity !== '' && diveLogData.leadQuantity !== undefined;
+    const leadKg = hasLead
+      ? (isImperial ? CONVERSIONS.lbsToKg(parseFloat(diveLogData.leadQuantity)) : parseFloat(diveLogData.leadQuantity))
+      : null;
 
     const airTempSI = diveLogData.airTemp !== '' && diveLogData.airTemp !== undefined
       ? (isImperial ? CONVERSIONS.fahrenheitToKelvin(parseFloat(diveLogData.airTemp)) : CONVERSIONS.celsiusToKelvin(parseFloat(diveLogData.airTemp)))
@@ -67,20 +70,28 @@
       ? (isImperial ? CONVERSIONS.feetToMetres(parseFloat(diveLogData.visibility)) : parseFloat(diveLogData.visibility))
       : null;
 
-    const o2Fraction = (parseFloat(diveLogData.gasO2 || 21) / 100).toFixed(4);
-    const heFraction = (parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4);
-    const n2Fraction = (1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4);
+    const hasGasDefinitions = Boolean(diveLogData.gasName && diveLogData.gasO2 !== null && diveLogData.gasO2 !== undefined);
+    const o2Fraction = hasGasDefinitions ? (parseFloat(diveLogData.gasO2) / 100).toFixed(4) : '0.2100';
+    const heFraction = hasGasDefinitions ? (parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4) : '0.0000';
+    const n2Fraction = hasGasDefinitions ? (1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4) : '0.7900';
+    const gasId = hasGasDefinitions ? `gas_${diveLogData.gasName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : 'gas_1';
 
-    const gasId = `gas_${(diveLogData.gasName || 'air').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
-    const siteNameStr = diveLogData.siteName || 'Unknown Dive Site';
+    const siteNameStr = diveLogData.siteName ? diveLogData.siteName.trim() : '';
     const locParts = [diveLogData.siteLocation, diveLogData.siteCountry].filter(Boolean);
     const locationStr = locParts.join(', ');
-    const siteId = `site_${siteNameStr.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    const siteId = siteNameStr ? `site_${siteNameStr.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : 'site_1';
+    const hasSiteInfo = Boolean(siteNameStr || locationStr || diveLogData.latitude || diveLogData.longitude);
+
     const ownerId = 'diver_owner';
     const buddyId = diveLogData.buddyName ? `buddy_${diveLogData.buddyName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : '';
     const suitId = 'suit_1';
     const tankId = 'tank_1';
     const profileId = `profile_dive_1-${Date.now()}`;
+
+    const hasSuitEquipment = Boolean(diveLogData.suitType && diveLogData.suitType !== 'none');
+    const hasOwnerPersonal = Boolean(diveLogData.diverFirstName || diveLogData.diverLastName);
+    const hasOwnerInfo = hasOwnerPersonal || hasSuitEquipment;
+    const hasDiverBlock = hasOwnerInfo || Boolean(buddyId);
 
     const nowIso = new Date().toISOString().split('.')[0] + 'Z';
     let diveDateTime = nowIso;
@@ -104,67 +115,74 @@
     xml += `    <datetime>${nowIso}</datetime>\n`;
     xml += `  </generator>\n`;
 
-    // 2. Diver
-    xml += `  <diver>\n`;
-    xml += `    <owner id="${ownerId}">\n`;
-    xml += `      <personal>\n`;
-    xml += `        <firstname>${escapeXml(diveLogData.diverFirstName || 'Diver')}</firstname>\n`;
-    xml += `        <lastname>${escapeXml(diveLogData.diverLastName || '')}</lastname>\n`;
-    xml += `      </personal>\n`;
+    // 2. Diver (Omitted if no owner/buddy/suit information)
+    if (hasDiverBlock) {
+      xml += `  <diver>\n`;
+      if (hasOwnerInfo) {
+        xml += `    <owner id="${ownerId}">\n`;
+        xml += `      <personal>\n`;
+        xml += `        <firstname>${escapeXml(diveLogData.diverFirstName || '')}</firstname>\n`;
+        xml += `        <lastname>${escapeXml(diveLogData.diverLastName || '')}</lastname>\n`;
+        xml += `      </personal>\n`;
 
-    // Equipment Definitions (Suit & Protection)
-    let suitName = '';
-    let suitCategory = 'wet-suit';
-    if (diveLogData.suitType && diveLogData.suitType !== 'none') {
-      suitName = 'Wetsuit';
-      if (diveLogData.suitType === 'drysuit') { suitName = 'Drysuit'; suitCategory = 'dry-suit'; }
-      else if (diveLogData.suitType === 'shorty') { suitName = 'Shorty Wetsuit'; suitCategory = 'wet-suit'; }
-      else if (diveLogData.suitType === 'wetsuit_3mm') { suitName = '3mm Wetsuit'; suitCategory = 'wet-suit'; }
-      else if (diveLogData.suitType === 'wetsuit_5mm') { suitName = '5mm Wetsuit'; suitCategory = 'wet-suit'; }
-      else if (diveLogData.suitType === 'wetsuit_7mm') { suitName = '7mm Wetsuit / Semi-Dry'; suitCategory = 'wet-suit'; }
+        // Equipment Definitions (Suit & Protection)
+        if (hasSuitEquipment) {
+          let suitName = 'Wetsuit';
+          let suitCategory = 'wet-suit';
+          if (diveLogData.suitType === 'drysuit') { suitName = 'Drysuit'; suitCategory = 'dry-suit'; }
+          else if (diveLogData.suitType === 'shorty') { suitName = 'Shorty Wetsuit'; suitCategory = 'wet-suit'; }
+          else if (diveLogData.suitType === 'wetsuit_3mm') { suitName = '3mm Wetsuit'; suitCategory = 'wet-suit'; }
+          else if (diveLogData.suitType === 'wetsuit_5mm') { suitName = '5mm Wetsuit'; suitCategory = 'wet-suit'; }
+          else if (diveLogData.suitType === 'wetsuit_7mm') { suitName = '7mm Wetsuit / Semi-Dry'; suitCategory = 'wet-suit'; }
 
-      xml += `      <equipment>\n`;
-      xml += `        <suit id="${suitId}">\n`;
-      xml += `          <name>${escapeXml(suitName)}</name>\n`;
-      xml += `          <suittype>${suitCategory}</suittype>\n`;
-      xml += `        </suit>\n`;
-      xml += `      </equipment>\n`;
+          xml += `      <equipment>\n`;
+          xml += `        <suit id="${suitId}">\n`;
+          xml += `          <name>${escapeXml(suitName)}</name>\n`;
+          xml += `          <suittype>${suitCategory}</suittype>\n`;
+          xml += `        </suit>\n`;
+          xml += `      </equipment>\n`;
+        }
+        xml += `    </owner>\n`;
+      }
+
+      if (buddyId) {
+        xml += `    <buddy id="${buddyId}">\n`;
+        xml += `      <personal>\n`;
+        xml += `        <firstname>${escapeXml(diveLogData.buddyName)}</firstname>\n`;
+        xml += `        <lastname></lastname>\n`;
+        xml += `      </personal>\n`;
+        xml += `    </buddy>\n`;
+      }
+      xml += `  </diver>\n`;
     }
-    xml += `    </owner>\n`;
 
-    if (diveLogData.buddyName) {
-      xml += `    <buddy id="${buddyId}">\n`;
-      xml += `      <personal>\n`;
-      xml += `        <firstname>${escapeXml(diveLogData.buddyName)}</firstname>\n`;
-      xml += `        <lastname></lastname>\n`;
-      xml += `      </personal>\n`;
-      xml += `    </buddy>\n`;
+    // 3. Divesite (Omitted if no site name, location or coordinates)
+    if (hasSiteInfo) {
+      xml += `  <divesite>\n`;
+      xml += `    <site id="${escapeXml(siteId)}">\n`;
+      xml += `      <name>${escapeXml(siteNameStr || 'Dive Site')}</name>\n`;
+      if (locationStr || diveLogData.latitude || diveLogData.longitude) {
+        xml += `      <geography>\n`;
+        if (locationStr) xml += `        <location>${escapeXml(locationStr)}</location>\n`;
+        if (diveLogData.latitude) xml += `        <latitude>${parseFloat(diveLogData.latitude).toFixed(6)}</latitude>\n`;
+        if (diveLogData.longitude) xml += `        <longitude>${parseFloat(diveLogData.longitude).toFixed(6)}</longitude>\n`;
+        xml += `      </geography>\n`;
+      }
+      xml += `    </site>\n`;
+      xml += `  </divesite>\n`;
     }
-    xml += `  </diver>\n`;
 
-    // 3. Divesite
-    xml += `  <divesite>\n`;
-    xml += `    <site id="${escapeXml(siteId)}">\n`;
-    xml += `      <name>${escapeXml(siteNameStr)}</name>\n`;
-    if (locationStr || diveLogData.latitude || diveLogData.longitude) {
-      xml += `      <geography>\n`;
-      if (locationStr) xml += `        <location>${escapeXml(locationStr)}</location>\n`;
-      if (diveLogData.latitude) xml += `        <latitude>${parseFloat(diveLogData.latitude).toFixed(6)}</latitude>\n`;
-      if (diveLogData.longitude) xml += `        <longitude>${parseFloat(diveLogData.longitude).toFixed(6)}</longitude>\n`;
-      xml += `      </geography>\n`;
+    // 4. Gas Definitions (Omitted if gas mixture is unspecified/unknown)
+    if (hasGasDefinitions) {
+      xml += `  <gasdefinitions>\n`;
+      xml += `    <mix id="${gasId}">\n`;
+      xml += `      <name>${escapeXml(diveLogData.gasName)}</name>\n`;
+      xml += `      <o2>${o2Fraction}</o2>\n`;
+      xml += `      <n2>${n2Fraction}</n2>\n`;
+      xml += `      <he>${heFraction}</he>\n`;
+      xml += `    </mix>\n`;
+      xml += `  </gasdefinitions>\n`;
     }
-    xml += `    </site>\n`;
-    xml += `  </divesite>\n`;
-
-    // 4. Gas Definitions
-    xml += `  <gasdefinitions>\n`;
-    xml += `    <mix id="${gasId}">\n`;
-    xml += `      <name>${escapeXml(diveLogData.gasName || 'Air')}</name>\n`;
-    xml += `      <o2>${o2Fraction}</o2>\n`;
-    xml += `      <n2>${n2Fraction}</n2>\n`;
-    xml += `      <he>${heFraction}</he>\n`;
-    xml += `    </mix>\n`;
-    xml += `  </gasdefinitions>\n`;
 
     // 5. Profile Data
     xml += `  <profiledata>\n`;
@@ -177,7 +195,9 @@
     if (buddyId) {
       xml += `          <link ref="${buddyId}"/>\n`;
     }
-    xml += `          <link ref="${escapeXml(siteId)}"/>\n`;
+    if (hasSiteInfo) {
+      xml += `          <link ref="${escapeXml(siteId)}"/>\n`;
+    }
     if (diveLogData.diveNumber) {
       xml += `          <divenumber>${parseInt(diveLogData.diveNumber, 10)}</divenumber>\n`;
     }
@@ -185,8 +205,12 @@
     if (airTempSI !== null) {
       xml += `          <airtemperature>${airTempSI.toFixed(2)}</airtemperature>\n`;
     }
-    xml += `          <apparatus>${escapeXml(diveLogData.apparatus || 'open-scuba')}</apparatus>\n`;
-    xml += `          <purpose>${escapeXml(diveLogData.purpose || 'sightseeing')}</purpose>\n`;
+    if (diveLogData.apparatus) {
+      xml += `          <apparatus>${escapeXml(diveLogData.apparatus)}</apparatus>\n`;
+    }
+    if (diveLogData.purpose) {
+      xml += `          <purpose>${escapeXml(diveLogData.purpose)}</purpose>\n`;
+    }
     if (diveLogData.suitType === 'none') {
       xml += `          <nosuit/>\n`;
     }
@@ -203,7 +227,9 @@
         if (wp.temp !== null && wp.temp !== undefined) {
           xml += `            <temperature>${parseFloat(wp.temp).toFixed(2)}</temperature>\n`;
         }
-        xml += `            <switchmix ref="${gasId}"/>\n`;
+        if (hasGasDefinitions) {
+          xml += `            <switchmix ref="${gasId}"/>\n`;
+        }
         if (wp.pressure) {
           xml += `            <tankpressure>${Math.round(wp.pressure)}</tankpressure>\n`;
         }
@@ -212,16 +238,27 @@
       xml += `        </samples>\n`;
     }
 
-    // Tank Data
-    xml += `        <tankdata>\n`;
-    xml += `          <link ref="${gasId}"/>\n`;
-    const tankVolRaw = parseFloat(diveLogData.tankVolume || 0);
-    if (tankVolRaw > 0) {
-      xml += `          <tankvolume>${tankVolRaw.toFixed(1)}</tankvolume>\n`;
+    // Tank Data (Omitted if no gas, volume, or pressures defined)
+    const hasTankVol = diveLogData.tankVolume !== '' && diveLogData.tankVolume !== undefined;
+    const hasTankData = hasGasDefinitions || hasTankVol || startPressureSI !== null || endPressureSI !== null;
+    if (hasTankData) {
+      xml += `        <tankdata>\n`;
+      if (hasGasDefinitions) {
+        xml += `          <link ref="${gasId}"/>\n`;
+      }
+      if (hasTankVol) {
+        const tankVolRaw = parseFloat(diveLogData.tankVolume);
+        if (!isNaN(tankVolRaw) && tankVolRaw > 0) {
+          xml += `          <tankvolume>${tankVolRaw.toFixed(1)}</tankvolume>\n`;
+        }
+      }
+      const startP = startPressureSI !== null ? startPressureSI : 0;
+      xml += `          <tankpressurebegin>${Math.round(startP)}</tankpressurebegin>\n`;
+      if (endPressureSI !== null) {
+        xml += `          <tankpressureend>${Math.round(endPressureSI)}</tankpressureend>\n`;
+      }
+      xml += `        </tankdata>\n`;
     }
-    xml += `          <tankpressurebegin>${Math.round(startPressureSI)}</tankpressurebegin>\n`;
-    xml += `          <tankpressureend>${Math.round(endPressureSI)}</tankpressureend>\n`;
-    xml += `        </tankdata>\n`;
 
     // Information After Dive (Ordered according to strict XSD sequence)
     xml += `        <informationafterdive>\n`;
@@ -232,22 +269,21 @@
     if (visibilitySI !== null) {
       xml += `          <visibility>${visibilitySI.toFixed(2)}</visibility>\n`;
     }
-    xml += `          <notes>\n`;
-    xml += `            <para>Summary: ${escapeXml(diveLogData.notes || '')}\n</para>\n`;
-    xml += `            <para>Environment:  \n</para>\n`;
-    xml += `            <para>Gas:  \n</para>\n`;
-    xml += `            <para>Gear:  \n</para>\n`;
-    xml += `            <para>Issues:  \n</para>\n`;
-    xml += `          </notes>\n`;
+    if (diveLogData.notes && diveLogData.notes.trim()) {
+      xml += `          <notes>\n`;
+      xml += `            <para>${escapeXml(diveLogData.notes.trim())}</para>\n`;
+      xml += `          </notes>\n`;
+    }
     if (durationSec > 0) {
       xml += `          <diveduration>${Math.round(durationSec)}</diveduration>\n`;
     }
-    if ((diveLogData.suitType && diveLogData.suitType !== 'none') || leadKg > 0) {
+    const hasLeadKg = leadKg !== null && !isNaN(leadKg) && leadKg > 0;
+    if (hasSuitEquipment || hasLeadKg) {
       xml += `          <equipmentused>\n`;
-      if (leadKg > 0) {
+      if (hasLeadKg) {
         xml += `            <leadquantity>${leadKg.toFixed(1)}</leadquantity>\n`;
       }
-      if (diveLogData.suitType && diveLogData.suitType !== 'none') {
+      if (hasSuitEquipment) {
         xml += `            <link ref="${suitId}"/>\n`;
       }
       xml += `          </equipmentused>\n`;
