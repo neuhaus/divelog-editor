@@ -49,7 +49,8 @@
     // Diver & Buddy
     const diverFirstName = getText('diver owner personal > firstname') || getText('diver owner personal > firstnames');
     const diverLastName = getText('diver owner personal > lastname');
-    const buddyName = getText('diver buddy personal > firstname') || getText('diver buddy personal > firstnames') || getText('diver buddy personal > name');
+    const buddyFirstName = getText('diver buddy personal > firstname') || getText('diver buddy personal > firstnames');
+    const buddyLastName = getText('diver buddy personal > lastname');
 
     // Gas definitions
     const gasName = getText('gasdefinitions mix > name') || 'Air';
@@ -175,7 +176,8 @@
       longitude,
       diverFirstName,
       diverLastName,
-      buddyName,
+      buddyFirstName,
+      buddyLastName,
       gasName,
       gasO2,
       gasHe,

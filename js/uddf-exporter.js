@@ -83,7 +83,9 @@
     const hasSiteInfo = Boolean(siteNameStr || locationStr || diveLogData.latitude || diveLogData.longitude);
 
     const ownerId = 'diver_owner';
-    const buddyId = diveLogData.buddyName ? `buddy_${diveLogData.buddyName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : '';
+    const hasBuddyInfo = Boolean(diveLogData.buddyFirstName || diveLogData.buddyLastName);
+    const buddyNameStr = [diveLogData.buddyFirstName, diveLogData.buddyLastName].filter(Boolean).join('_');
+    const buddyId = hasBuddyInfo ? `buddy_${buddyNameStr.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : '';
     const suitId = 'suit_1';
     const tankId = 'tank_1';
 
@@ -144,8 +146,8 @@
       if (buddyId) {
         xml += `    <buddy id="${buddyId}">\n`;
         xml += `      <personal>\n`;
-        xml += `        <firstname>${escapeXml(diveLogData.buddyName)}</firstname>\n`;
-        xml += `        <lastname></lastname>\n`;
+        xml += `        <firstname>${escapeXml(diveLogData.buddyFirstName || '')}</firstname>\n`;
+        xml += `        <lastname>${escapeXml(diveLogData.buddyLastName || '')}</lastname>\n`;
         xml += `      </personal>\n`;
         xml += `    </buddy>\n`;
       }

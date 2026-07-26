@@ -93,7 +93,8 @@
         endPressure: $val('endPressure'),
         diverFirstName: $val('diverFirstName'),
         diverLastName: $val('diverLastName'),
-        buddyName: $val('buddyName'),
+        buddyFirstName: $val('buddyFirstName'),
+        buddyLastName: $val('buddyLastName'),
         siteLocation: $val('siteLocation'),
         siteCountry: $val('siteCountry'),
         latitude: $val('latitude'),
@@ -258,7 +259,8 @@
 
       $val('diverFirstName', '');
       $val('diverLastName', '');
-      $val('buddyName', '');
+      $val('buddyFirstName', '');
+      $val('buddyLastName', '');
 
       $val('tankVolume', '');
       $val('apparatus', '');
@@ -297,7 +299,8 @@
 
       $val('diverFirstName', 'Alex');
       $val('diverLastName', 'Ocean');
-      $val('buddyName', 'Sam Diver');
+      $val('buddyFirstName', 'Sam');
+      $val('buddyLastName', 'Diver');
 
       $val('tankVolume', isImp ? '80' : '12');
       $val('apparatus', 'open-scuba');
@@ -360,7 +363,8 @@
 
       $val('diverFirstName', parsedData.diverFirstName || '');
       $val('diverLastName', parsedData.diverLastName || '');
-      $val('buddyName', parsedData.buddyName || '');
+      $val('buddyFirstName', parsedData.buddyFirstName || '');
+      $val('buddyLastName', parsedData.buddyLastName || '');
 
       $val('maxDepth', parsedData.maxDepth || '0');
       $val('duration', parsedData.duration || '45');

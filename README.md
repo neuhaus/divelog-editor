@@ -4,10 +4,11 @@ A lightweight, accessible, single-page web application to read, view, edit, and 
 
 ## Features
 
+- Everything happens only in your browser. Your dive data is not sent to a server.
 - Compatible with [Shearwater Cloud](https://shearwater.com/pages/shearwater-cloud). Tested with macOS client 2.12.10
   - Known issue: Shearwater cloud does not recognise the `<suittype>` element
-- Read & Edit Existing UDDF 3.2.1 Files. Dive profile waypoints are preserved when editing imported dive computer logs
-- Automatic Unit Conversion between Metric and Imperial
+- Read & edit existing UDDF 3.2.1 files, preserving dive profile waypoints when editing imported dive computer logs
+- Automatic unit conversion between metric and imperial
 
 It's standard HTML5, CSS3, and JavaScript, no external frameworks and no assembly required.
 
