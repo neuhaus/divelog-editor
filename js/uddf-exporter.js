@@ -86,7 +86,6 @@
     const buddyId = diveLogData.buddyName ? `buddy_${diveLogData.buddyName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : '';
     const suitId = 'suit_1';
     const tankId = 'tank_1';
-    const profileId = `profile_dive_1-${Date.now()}`;
 
     const hasSuitEquipment = Boolean(diveLogData.suitType && diveLogData.suitType !== 'none');
     const hasOwnerPersonal = Boolean(diveLogData.diverFirstName || diveLogData.diverLastName);
@@ -191,7 +190,6 @@
 
     // Information Before Dive
     xml += `        <informationbeforedive>\n`;
-    xml += `          <link ref="${profileId}"/>\n`;
     if (buddyId) {
       xml += `          <link ref="${buddyId}"/>\n`;
     }
