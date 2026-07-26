@@ -16,7 +16,7 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-(function(window) {
+(function (window) {
   const { CONVERSIONS, UNITS } = window.UDDF_SCHEMA;
 
   function escapeXml(str) {
@@ -107,9 +107,6 @@
     xml += `  <generator>\n`;
     xml += `    <name>divelog-editor</name>\n`;
     xml += `    <type>logbook</type>\n`;
-    xml += `    <manufacturer id="manuf_divelog_editor">\n`;
-    xml += `      <name>divelog-editor</name>\n`;
-    xml += `    </manufacturer>\n`;
     xml += `    <version>1.0.0</version>\n`;
     xml += `    <datetime>${nowIso}</datetime>\n`;
     xml += `  </generator>\n`;
