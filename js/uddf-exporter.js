@@ -214,6 +214,17 @@
     if (airTempSI !== null) {
       xml += `          <airtemperature>${airTempSI.toFixed(2)}</airtemperature>\n`;
     }
+    const hasLeadKg = leadKg !== null && !isNaN(leadKg) && leadKg > 0;
+    if (hasSuitEquipment || hasLeadKg) {
+      xml += `          <equipmentused>\n`;
+      if (hasLeadKg) {
+        xml += `            <leadquantity>${leadKg.toFixed(1)}</leadquantity>\n`;
+      }
+      if (hasSuitEquipment) {
+        xml += `            <link ref="${suitId}"/>\n`;
+      }
+      xml += `          </equipmentused>\n`;
+    }
     if (diveLogData.apparatus) {
       xml += `          <apparatus>${escapeXml(diveLogData.apparatus)}</apparatus>\n`;
     }
@@ -244,6 +255,18 @@
         }
         if (wp.pressure) {
           xml += `            <tankpressure>${Math.round(wp.pressure)}</tankpressure>\n`;
+        }
+        if (wp.bodyTemp !== null && wp.bodyTemp !== undefined) {
+          xml += `            <bodytemperature>${parseFloat(wp.bodyTemp).toFixed(2)}</bodytemperature>\n`;
+        }
+        if (wp.heartRate !== null && wp.heartRate !== undefined) {
+          xml += `            <heartrate>${parseFloat(wp.heartRate).toFixed(0)}</heartrate>\n`;
+        }
+        if (wp.pulseRate !== null && wp.pulseRate !== undefined) {
+          xml += `            <pulserate>${parseFloat(wp.pulseRate).toFixed(0)}</pulserate>\n`;
+        }
+        if (wp.setMarker) {
+          xml += `            <setmarker>${escapeXml(wp.setMarker)}</setmarker>\n`;
         }
         xml += `          </waypoint>\n`;
       });
@@ -311,17 +334,6 @@
     }
     const validDurationSec = durationSec > 0 ? Math.round(durationSec) : 0;
     xml += `          <diveduration>${validDurationSec}</diveduration>\n`;
-    const hasLeadKg = leadKg !== null && !isNaN(leadKg) && leadKg > 0;
-    if (hasSuitEquipment || hasLeadKg) {
-      xml += `          <equipmentused>\n`;
-      if (hasLeadKg) {
-        xml += `            <leadquantity>${leadKg.toFixed(1)}</leadquantity>\n`;
-      }
-      if (hasSuitEquipment) {
-        xml += `            <link ref="${suitId}"/>\n`;
-      }
-      xml += `          </equipmentused>\n`;
-    }
     xml += `        </informationafterdive>\n`;
 
     xml += `      </dive>\n`;

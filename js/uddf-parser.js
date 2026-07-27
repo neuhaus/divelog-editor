@@ -191,7 +191,11 @@
       time: getFloat('divetime', wp) ?? 0,
       depth: getFloat('depth', wp) ?? 0,
       temp: getFloat('temperature', wp),
-      pressure: getFloat('tankpressure', wp)
+      pressure: getFloat('tankpressure', wp),
+      bodyTemp: getFloat('bodytemperature', wp),
+      heartRate: getFloat('heartrate', wp),
+      pulseRate: getFloat('pulserate', wp),
+      setMarker: getText('setmarker', wp) || null
     }));
 
     const diveDurationSec = getFloat('informationafterdive > diveduration') ?? getFloat('diveduration');
