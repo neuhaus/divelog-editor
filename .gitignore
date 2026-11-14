@@ -1,4 +1,7 @@
 www.streit.cc/
+
+# Deployable site (scripts/build-dist.sh)
+/dist/
 .DS_Store
 Thumbs.db
 *.uddf
