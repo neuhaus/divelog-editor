@@ -63,6 +63,7 @@
     let activeWaypoints = null;
     let activeGasNotes = '';
     let activeGasDefinitions = null;
+    let lastValidXml = '';
 
     function getFormData() {
       const selectedPreset = $val('gasPreset');
@@ -134,13 +135,22 @@
       });
     }
 
+    function setExportEnabled(enabled) {
+      btnExportXml.disabled = !enabled;
+      btnCopyXml.disabled = !enabled;
+    }
+
     function updateXmlPreview() {
       try {
         const data = getFormData();
         const xml = exportToUddf(data, currentUnit);
+        lastValidXml = xml;
         xmlOutput.innerHTML = highlightXml(xml);
+        setExportEnabled(true);
       } catch (err) {
+        lastValidXml = '';
         xmlOutput.textContent = 'Error generating UDDF XML: ' + err.message;
+        setExportEnabled(false);
       }
     }
 
@@ -343,7 +353,8 @@
     }
 
     btnExportXml.addEventListener('click', () => {
-      const xml = xmlOutput.textContent;
+      const xml = lastValidXml;
+      if (!xml) return;
       const rawDate = $val('dateTime');
       const dateStr = rawDate ? rawDate.substring(0, 10) : new Date().toISOString().substring(0, 10);
       const diveNumRaw = $val('diveNumber');
@@ -366,7 +377,7 @@
     });
 
     btnCopyXml.addEventListener('click', () => {
-      navigator.clipboard.writeText(xmlOutput.textContent).then(() => {
+      navigator.clipboard.writeText(lastValidXml).then(() => {
         statusMsg.style.display = 'inline';
         setTimeout(() => {
           statusMsg.style.display = 'none';
