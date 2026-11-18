@@ -66,11 +66,39 @@
       ? (isImperial ? CONVERSIONS.feetToMetres(parseFloat(diveLogData.visibility)) : parseFloat(diveLogData.visibility))
       : null;
 
-    const hasGasDefinitions = Boolean(diveLogData.gasName && diveLogData.gasO2 !== null && diveLogData.gasO2 !== undefined);
-    const o2Fraction = hasGasDefinitions ? (parseFloat(diveLogData.gasO2) / 100).toFixed(4) : '0.2100';
-    const heFraction = hasGasDefinitions ? (parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4) : '0.0000';
-    const n2Fraction = hasGasDefinitions ? (1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4) : '0.7900';
-    const gasId = hasGasDefinitions ? `gas_${diveLogData.gasName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}` : 'gas_1';
+    const hasSingleGas = Boolean(diveLogData.gasName && diveLogData.gasO2 !== null && diveLogData.gasO2 !== undefined);
+    const o2Fraction = hasSingleGas ? (parseFloat(diveLogData.gasO2) / 100).toFixed(4) : '0.2100';
+    const heFraction = hasSingleGas ? (parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4) : '0.0000';
+    const n2Fraction = hasSingleGas ? (1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4) : '0.7900';
+
+    const gasIdFor = (name) => `gas_${String(name || 'mix').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+
+    // Build exactly the mixes we will emit, so every <link>/<switchmix> ref
+    // points at a mix id that actually exists in <gasdefinitions>.
+    const mixes = diveLogData.allMixes && diveLogData.allMixes.length > 0
+      ? diveLogData.allMixes.map((mix) => {
+          const name = mix.name || 'Mix';
+          return {
+            id: mix.id || gasIdFor(name),
+            name,
+            o2: parseFloat(mix.o2).toFixed(4),
+            n2: parseFloat(mix.n2).toFixed(4),
+            he: parseFloat(mix.he).toFixed(4)
+          };
+        })
+      : hasSingleGas
+        ? [{
+            id: gasIdFor(diveLogData.gasName),
+            name: diveLogData.gasName,
+            o2: o2Fraction,
+            n2: n2Fraction,
+            he: heFraction
+          }]
+        : [];
+
+    // The parser derives the displayed gas from the first mix, so that is the
+    // primary breathing gas used for the tank link and the initial switchmix.
+    const primaryGasId = mixes.length > 0 ? mixes[0].id : null;
 
     const siteNameStr = diveLogData.siteName ? diveLogData.siteName.trim() : '';
     const locParts = [diveLogData.siteLocation, diveLogData.siteCountry].filter(Boolean);
@@ -167,26 +195,16 @@
     }
 
     // 4. Gas Definitions (Omitted if gas mixture is unspecified/unknown)
-    if (diveLogData.allMixes && diveLogData.allMixes.length > 0) {
+    if (mixes.length > 0) {
       xml += `  <gasdefinitions>\n`;
-      diveLogData.allMixes.forEach(mix => {
-        const mixId = mix.id || `gas_${mix.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
-        xml += `    <mix id="${escapeXml(mixId)}">\n`;
+      mixes.forEach((mix) => {
+        xml += `    <mix id="${escapeXml(mix.id)}">\n`;
         xml += `      <name>${escapeXml(mix.name)}</name>\n`;
-        xml += `      <o2>${parseFloat(mix.o2).toFixed(4)}</o2>\n`;
-        xml += `      <n2>${parseFloat(mix.n2).toFixed(4)}</n2>\n`;
-        xml += `      <he>${parseFloat(mix.he).toFixed(4)}</he>\n`;
+        xml += `      <o2>${mix.o2}</o2>\n`;
+        xml += `      <n2>${mix.n2}</n2>\n`;
+        xml += `      <he>${mix.he}</he>\n`;
         xml += `    </mix>\n`;
       });
-      xml += `  </gasdefinitions>\n`;
-    } else if (hasGasDefinitions) {
-      xml += `  <gasdefinitions>\n`;
-      xml += `    <mix id="${gasId}">\n`;
-      xml += `      <name>${escapeXml(diveLogData.gasName)}</name>\n`;
-      xml += `      <o2>${o2Fraction}</o2>\n`;
-      xml += `      <n2>${n2Fraction}</n2>\n`;
-      xml += `      <he>${heFraction}</he>\n`;
-      xml += `    </mix>\n`;
       xml += `  </gasdefinitions>\n`;
     }
 
@@ -239,15 +257,17 @@
     const waypoints = diveLogData.customWaypoints;
     if (waypoints && waypoints.length > 0) {
       xml += `        <samples>\n`;
-      waypoints.forEach((wp) => {
+      waypoints.forEach((wp, index) => {
         xml += `          <waypoint>\n`;
         xml += `            <divetime>${Math.round(wp.time)}</divetime>\n`;
         xml += `            <depth>${parseFloat(wp.depth).toFixed(2)}</depth>\n`;
         if (wp.temp !== null && wp.temp !== undefined) {
           xml += `            <temperature>${parseFloat(wp.temp).toFixed(2)}</temperature>\n`;
         }
-        if (hasGasDefinitions) {
-          xml += `            <switchmix ref="${gasId}"/>\n`;
+        // A mix switch belongs at the point the diver changes gas. We only
+        // track one primary mix, so emit it once at the first waypoint.
+        if (index === 0 && primaryGasId) {
+          xml += `            <switchmix ref="${escapeXml(primaryGasId)}"/>\n`;
         }
         if (wp.pressure) {
           xml += `            <tankpressure>${Math.round(wp.pressure)}</tankpressure>\n`;
@@ -276,11 +296,11 @@
           ? CONVERSIONS.cuftToLitres(parseFloat(diveLogData.tankVolume))
           : parseFloat(diveLogData.tankVolume))
       : null;
-    const hasTankData = hasGasDefinitions || hasTankVol || startPressureSI !== null || endPressureSI !== null;
+    const hasTankData = Boolean(primaryGasId) || hasTankVol || startPressureSI !== null || endPressureSI !== null;
     if (hasTankData) {
       xml += `        <tankdata>\n`;
-      if (hasGasDefinitions) {
-        xml += `          <link ref="${gasId}"/>\n`;
+      if (primaryGasId) {
+        xml += `          <link ref="${escapeXml(primaryGasId)}"/>\n`;
       }
       if (tankVolumeL !== null && !isNaN(tankVolumeL) && tankVolumeL > 0) {
         // UDDF <tankvolume> is always in litres, regardless of display units.
