@@ -1,6 +1,6 @@
 /**
- * UDDF 3.2.1 XML Exporter
- * Serialises dive log state to valid UDDF 3.2.1 XML
+ * UDDF 3.2.3 XML Exporter
+ * Serialises dive log state to valid UDDF 3.2.3 XML
   Copyright (C) 2026 Sven Neuhaus
 
   This program is free software: you can redistribute it and/or modify
@@ -139,7 +139,7 @@
     xml += `  <generator>\n`;
     xml += `    <name>divelog-editor</name>\n`;
     xml += `    <type>logbook</type>\n`;
-    xml += `    <version>1.0.0</version>\n`;
+    xml += `    <version>1.1.0</version>\n`;
     xml += `    <datetime>${nowIso}</datetime>\n`;
     xml += `  </generator>\n`;
 
