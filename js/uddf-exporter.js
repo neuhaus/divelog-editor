@@ -49,10 +49,6 @@
       ? (isImperial ? CONVERSIONS.psiToPascal(parseFloat(diveLogData.endPressure)) : CONVERSIONS.barToPascal(parseFloat(diveLogData.endPressure)))
       : null;
 
-    const tankVolSI = isImperial
-      ? CONVERSIONS.cuftToCubicMeters(parseFloat(diveLogData.tankVolume || 0))
-      : CONVERSIONS.litresToCubicMeters(parseFloat(diveLogData.tankVolume || 0));
-
     const hasLead = diveLogData.leadQuantity !== '' && diveLogData.leadQuantity !== undefined;
     const leadKg = hasLead
       ? (isImperial ? CONVERSIONS.lbsToKg(parseFloat(diveLogData.leadQuantity)) : parseFloat(diveLogData.leadQuantity))
@@ -275,17 +271,20 @@
 
     // Tank Data (Omitted if no gas, volume, or pressures defined)
     const hasTankVol = diveLogData.tankVolume !== '' && diveLogData.tankVolume !== undefined;
+    const tankVolumeL = hasTankVol
+      ? (isImperial
+          ? CONVERSIONS.cuftToLitres(parseFloat(diveLogData.tankVolume))
+          : parseFloat(diveLogData.tankVolume))
+      : null;
     const hasTankData = hasGasDefinitions || hasTankVol || startPressureSI !== null || endPressureSI !== null;
     if (hasTankData) {
       xml += `        <tankdata>\n`;
       if (hasGasDefinitions) {
         xml += `          <link ref="${gasId}"/>\n`;
       }
-      if (hasTankVol) {
-        const tankVolRaw = parseFloat(diveLogData.tankVolume);
-        if (!isNaN(tankVolRaw) && tankVolRaw > 0) {
-          xml += `          <tankvolume>${tankVolRaw.toFixed(1)}</tankvolume>\n`;
-        }
+      if (tankVolumeL !== null && !isNaN(tankVolumeL) && tankVolumeL > 0) {
+        // UDDF <tankvolume> is always in litres, regardless of display units.
+        xml += `          <tankvolume>${tankVolumeL.toFixed(1)}</tankvolume>\n`;
       }
       const startP = startPressureSI !== null ? startPressureSI : 0;
       xml += `          <tankpressurebegin>${Math.round(startP)}</tankpressurebegin>\n`;
