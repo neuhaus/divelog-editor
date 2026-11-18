@@ -33,7 +33,6 @@
   };
 
   let currentUnit = UNITS.METRIC;
-  let activeWaypoints = null; // Store raw profile waypoints from imported files
 
   document.addEventListener('DOMContentLoaded', () => {
     const form = $('diveForm');
