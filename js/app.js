@@ -375,12 +375,53 @@
       URL.revokeObjectURL(url);
     });
 
+    // Clipboard API is only available in secure contexts (file:// pages have
+    // no navigator.clipboard), and can reject when permission is denied.
+    function copyViaExecCommand(text) {
+      return new Promise((resolve, reject) => {
+        const activeElement = document.activeElement;
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (err) {
+          copied = false;
+        }
+        document.body.removeChild(textarea);
+        if (activeElement && typeof activeElement.focus === 'function') activeElement.focus();
+        if (copied) resolve();
+        else reject(new Error('Clipboard access denied'));
+      });
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        return navigator.clipboard.writeText(text).catch(() => copyViaExecCommand(text));
+      }
+      return copyViaExecCommand(text);
+    }
+
     btnCopyXml.addEventListener('click', () => {
-      navigator.clipboard.writeText(lastValidXml).then(() => {
+      if (!lastValidXml) return;
+      copyText(lastValidXml).then(() => {
+        statusMsg.textContent = 'Copied!';
         statusMsg.style.display = 'inline';
         setTimeout(() => {
           statusMsg.style.display = 'none';
         }, 2000);
+      }).catch(() => {
+        statusMsg.textContent = 'Copy failed — select the XML and copy manually';
+        statusMsg.style.display = 'inline';
+        setTimeout(() => {
+          statusMsg.style.display = 'none';
+        }, 3000);
       });
     });
 
