@@ -62,6 +62,7 @@
     let activeWaypoints = null;
     let activeGasNotes = '';
     let activeGasDefinitions = null;
+    let activeGasFractions = null; // exact o2/he/n2 fractions from an imported mix
     let lastValidXml = '';
 
     function getFormData() {
@@ -116,6 +117,7 @@
         gasNotes: activeGasNotes,
         rawGasDefinitionsXml: activeGasDefinitions ? activeGasDefinitions.rawGasDefinitionsXml : null,
         allMixes: activeGasDefinitions ? activeGasDefinitions.allMixes : null,
+        gasFractions: activeGasFractions,
         gearNotes: $val('gearNotes'),
         issuesNotes: $val('issuesNotes'),
         customWaypoints: activeWaypoints
@@ -233,6 +235,9 @@
     }
 
     gasPreset.addEventListener('change', (e) => {
+      // A user-chosen gas supersedes the exact fractions and mixes from an import.
+      activeGasFractions = null;
+      activeGasDefinitions = null;
       if (e.target.value === 'custom') {
         customGasContainer.style.display = 'grid';
       } else {
@@ -252,8 +257,18 @@
       updateXmlPreview();
     });
 
-    gasO2Input.addEventListener('input', () => { validateGasMix(); updateXmlPreview(); });
-    gasHeInput.addEventListener('input', () => { validateGasMix(); updateXmlPreview(); });
+    gasO2Input.addEventListener('input', () => {
+      activeGasFractions = null;
+      activeGasDefinitions = null;
+      validateGasMix();
+      updateXmlPreview();
+    });
+    gasHeInput.addEventListener('input', () => {
+      activeGasFractions = null;
+      activeGasDefinitions = null;
+      validateGasMix();
+      updateXmlPreview();
+    });
 
     // Reset Form for New Dive
     function resetFormToNewDive() {
@@ -299,6 +314,7 @@
 
       activeGasNotes = '';
       activeGasDefinitions = null;
+      activeGasFractions = null;
 
       updateXmlPreview();
     }
@@ -308,6 +324,7 @@
       activeWaypoints = null;
       activeGasNotes = '';
       activeGasDefinitions = null;
+      activeGasFractions = null;
 
       $val('diveNumber', '104');
       $val('siteName', 'Shark & Yolanda Reef');
@@ -432,6 +449,11 @@
       activeGasDefinitions = {
         rawGasDefinitionsXml: parsedData.rawGasDefinitionsXml || null,
         allMixes: parsedData.allMixes || null
+      };
+      activeGasFractions = {
+        o2: parsedData.gasO2Fraction,
+        he: parsedData.gasHeFraction,
+        n2: parsedData.gasN2Fraction
       };
 
       $val('diveNumber', parsedData.diveNumber || '1');

@@ -56,6 +56,9 @@
     const gasName = getText('gasdefinitions mix > name') || 'Air';
     const o2Fraction = getFloat('gasdefinitions mix > o2') ?? 0.21;
     const heFraction = getFloat('gasdefinitions mix > he') ?? 0.0;
+    const n2Fraction = getFloat('gasdefinitions mix > n2') ?? (1.0 - o2Fraction - heFraction);
+    // Rounded percentages drive preset selection and the form display; the
+    // exact fractions are kept separately so export does not lose precision.
     const gasO2 = Math.round(o2Fraction * 100);
     const gasHe = Math.round(heFraction * 100);
 
@@ -225,6 +228,9 @@
       gasName,
       gasO2,
       gasHe,
+      gasO2Fraction: o2Fraction,
+      gasHeFraction: heFraction,
+      gasN2Fraction: n2Fraction,
       apparatus,
       platform,
       purpose,

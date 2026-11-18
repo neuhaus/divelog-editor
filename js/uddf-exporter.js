@@ -67,9 +67,20 @@
       : null;
 
     const hasSingleGas = Boolean(diveLogData.gasName && diveLogData.gasO2 !== null && diveLogData.gasO2 !== undefined);
-    const o2Fraction = hasSingleGas ? (parseFloat(diveLogData.gasO2) / 100).toFixed(4) : '0.2100';
-    const heFraction = hasSingleGas ? (parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4) : '0.0000';
-    const n2Fraction = hasSingleGas ? (1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4) : '0.7900';
+    // Use the exact fractions from an import when available; the form only
+    // shows rounded percentages, which would otherwise lose precision.
+    const rawFractions = diveLogData.gasFractions;
+    const o2Fraction = hasSingleGas
+      ? (rawFractions && Number.isFinite(rawFractions.o2) ? rawFractions.o2 : parseFloat(diveLogData.gasO2) / 100).toFixed(4)
+      : '0.2100';
+    const heFraction = hasSingleGas
+      ? (rawFractions && Number.isFinite(rawFractions.he) ? rawFractions.he : parseFloat(diveLogData.gasHe || 0) / 100).toFixed(4)
+      : '0.0000';
+    const n2Fraction = hasSingleGas
+      ? (rawFractions && Number.isFinite(rawFractions.n2)
+          ? rawFractions.n2
+          : 1.0 - parseFloat(o2Fraction) - parseFloat(heFraction)).toFixed(4)
+      : '0.7900';
 
     const gasIdFor = (name) => `gas_${String(name || 'mix').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
 
