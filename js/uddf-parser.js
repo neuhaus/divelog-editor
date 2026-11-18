@@ -147,13 +147,13 @@
     const tankVolVal = getFloat('tankdata > tankvolume');
     let tankVolume = '';
     if (tankVolVal !== null && tankVolVal > 0) {
-      if (tankVolVal < 1.0) {
-        tankVolume = isImperial
-          ? CONVERSIONS.cubicMetersToCuft(tankVolVal).toFixed(0)
-          : CONVERSIONS.cubicMetersToLitres(tankVolVal).toFixed(1);
-      } else {
-        tankVolume = tankVolVal.toFixed(1);
-      }
+      // UDDF stores tank volume in litres; a few files use cubic metres (<1).
+      const litres = tankVolVal < 1.0
+        ? CONVERSIONS.cubicMetersToLitres(tankVolVal)
+        : tankVolVal;
+      tankVolume = isImperial
+        ? CONVERSIONS.litresToCuft(litres).toFixed(0)
+        : litres.toFixed(1);
     }
 
     const pStartPa = getFloat('tankdata > tankpressurebegin') ?? getFloat('waypoint:first-child > tankpressure');
