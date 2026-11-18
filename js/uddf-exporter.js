@@ -17,7 +17,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function (window) {
-  const { CONVERSIONS, UNITS } = window.UDDF_SCHEMA;
+  const { CONVERSIONS, UNITS, DATETIME } = window.UDDF_SCHEMA;
 
   function escapeXml(str) {
     if (str === null || str === undefined) return '';
@@ -119,12 +119,7 @@
     const hasDiverBlock = hasOwnerInfo || Boolean(buddyId);
 
     const nowIso = new Date().toISOString().split('.')[0] + 'Z';
-    let diveDateTime = nowIso;
-    if (diveLogData.dateTime) {
-      let dt = diveLogData.dateTime.length === 16 ? `${diveLogData.dateTime}:00` : diveLogData.dateTime;
-      if (!dt.endsWith('Z')) dt += 'Z';
-      diveDateTime = dt;
-    }
+    const diveDateTime = DATETIME.toUddf(diveLogData.dateTime) || nowIso;
 
     let xml = `<?xml version="1.0" encoding="utf-8"?>\n`;
     xml += `<uddf xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.2.3" xmlns="http://www.streit.cc/uddf/3.2/">\n`;

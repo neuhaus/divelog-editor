@@ -17,7 +17,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function(window) {
-  const { CONVERSIONS, UNITS } = window.UDDF_SCHEMA;
+  const { CONVERSIONS, UNITS, DATETIME } = window.UDDF_SCHEMA;
 
   function parseUddfXml(xmlString, targetUnits = UNITS.METRIC) {
     const isImperial = targetUnits === UNITS.IMPERIAL;
@@ -72,7 +72,7 @@
 
     // Info before dive
     const diveNumber = getText('informationbeforedive > divenumber');
-    const dateTime = getText('informationbeforedive > datetime');
+    const dateTime = DATETIME.fromUddf(getText('informationbeforedive > datetime'));
     const apparatus = getText('informationbeforedive > apparatus') || 'open-scuba';
     const platform = getText('informationbeforedive > platform');
     const purpose = getText('informationbeforedive > purpose') || 'sightseeing';
@@ -212,7 +212,7 @@
 
     return {
       diveNumber,
-      dateTime: dateTime ? dateTime.substring(0, 16) : new Date().toISOString().substring(0, 16),
+      dateTime: dateTime || DATETIME.formatLocal(new Date()),
       siteName,
       siteLocation,
       siteCountry,

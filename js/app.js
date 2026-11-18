@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function(window) {
-  const { UNITS, CONVERSIONS, STANDARD_GASES } = window.UDDF_SCHEMA;
+  const { UNITS, CONVERSIONS, DATETIME, STANDARD_GASES } = window.UDDF_SCHEMA;
   const { exportToUddf } = window.UDDF_EXPORTER;
   const { parseUddfXml } = window.UDDF_PARSER;
 
@@ -56,9 +56,7 @@
     // Initialise DateTime picker to current local time (only if empty or forced)
     function initialiseDateTime(force = false) {
       if (force || !$val('dateTime')) {
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        $val('dateTime', now.toISOString().slice(0, 16));
+        $val('dateTime', DATETIME.formatLocal(new Date()));
       }
     }
     initialiseDateTime();
@@ -386,7 +384,7 @@
       };
 
       $val('diveNumber', parsedData.diveNumber || '1');
-      $val('dateTime', parsedData.dateTime || new Date().toISOString().substring(0, 16));
+      $val('dateTime', parsedData.dateTime || DATETIME.formatLocal(new Date()));
       $val('siteName', parsedData.siteName || '');
       $val('siteLocation', parsedData.siteLocation || '');
       $val('siteCountry', parsedData.siteCountry || '');

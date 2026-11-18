@@ -62,6 +62,37 @@
   CONVERSIONS.litersToCubicMeters = CONVERSIONS.litresToCubicMeters;
   CONVERSIONS.cubicMetersToLiters = CONVERSIONS.cubicMetersToLitres;
 
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  // <input type="datetime-local"> holds local wall-clock time with no zone.
+  const DATETIME = {
+    // Format a Date for a datetime-local input, in the browser's local zone.
+    formatLocal: (date) => {
+      if (!(date instanceof Date) || isNaN(date.getTime())) return '';
+      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+    },
+
+    // Convert a datetime-local value into an xsd:dateTime with an explicit
+    // offset, so the instant is correct rather than being mistaken for UTC.
+    toUddf: (localValue) => {
+      if (!localValue) return null;
+      const date = new Date(localValue); // no zone in the string => local time
+      if (isNaN(date.getTime())) return null;
+      const offsetMinutes = -date.getTimezoneOffset();
+      const sign = offsetMinutes >= 0 ? '+' : '-';
+      const abs = Math.abs(offsetMinutes);
+      const offset = `${sign}${pad2(Math.floor(abs / 60))}:${pad2(abs % 60)}`;
+      return `${DATETIME.formatLocal(date)}:${pad2(date.getSeconds())}${offset}`;
+    },
+
+    // Convert an imported xsd:dateTime (Z or offset) to a datetime-local
+    // value, preserving the instant when it is edited and exported again.
+    fromUddf: (value) => {
+      if (!value) return '';
+      return DATETIME.formatLocal(new Date(value));
+    }
+  };
+
   const STANDARD_GASES = {
     air: { id: 'air', name: 'Air', o2: 0.21, n2: 0.79, he: 0.0, ar: 0.0 },
     ean32: { id: 'ean32', name: 'EAN32 (Nitrox 32)', o2: 0.32, n2: 0.68, he: 0.0, ar: 0.0 },
@@ -73,6 +104,7 @@
   window.UDDF_SCHEMA = {
     UNITS,
     CONVERSIONS,
+    DATETIME,
     STANDARD_GASES
   };
 })(window);
