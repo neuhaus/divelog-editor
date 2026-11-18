@@ -30,6 +30,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Run tests
+        run: ./scripts/test.sh
+
       - name: Build the site
         run: ./scripts/build-dist.sh
 
