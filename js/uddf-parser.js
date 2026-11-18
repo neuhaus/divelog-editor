@@ -165,7 +165,7 @@
     }
 
     const pEndPa = getFloat('tankdata > tankpressureend') ?? getFloat('waypoint:last-child > tankpressure');
-    let endPressure = isImperial ? '700' : '50';
+    let endPressure = isImperial ? '720' : '50';
     if (pEndPa !== null && pEndPa > 0) {
       endPressure = isImperial
         ? Math.round(CONVERSIONS.pascalToPsi(pEndPa)).toString()
